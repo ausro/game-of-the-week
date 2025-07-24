@@ -185,3 +185,30 @@ a:link {
   background-color:#651d32;
 }
 
+#about {
+  text-align: center;
+}
+
+#about p {
+  margin: 1em auto;
+  max-width: 75vw;
+}
+
+#about ul {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  list-style: circle;
+  width: fit-content;
+  text-align: justify;
+}
+
+#about>li {
+  list-style: none;
+  margin: 0;
+}
+
+.important {
+  font-weight: bold;
+  text-decoration: underline;
+}
