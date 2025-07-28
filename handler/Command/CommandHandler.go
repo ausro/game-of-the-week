@@ -52,6 +52,7 @@ func (c *CommandHandler) execute(in *Command) error {
 		c.appHandler.AddGameById(context.Background(), appId)
 	case "remove":
 		c.appHandler.DeleteGameById(context.Background(), appId)
+		c.appHandler.BlacklistGameById(context.Background(), appId)
 	case "promote":
 		app := c.appHandler.GetAppById(appId)
 		if app == nil {

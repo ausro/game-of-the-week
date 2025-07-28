@@ -11,17 +11,22 @@ import (
 )
 
 type SteamAppHandler struct {
-	Server  *handler.Server
-	group   string
-	router  *gin.RouterGroup
-	Service *service.SteamAppService
-	Apps    *AppList
+	Server    *handler.Server
+	group     string
+	router    *gin.RouterGroup
+	Service   *service.SteamAppService
+	Apps      *AppList
+	Blacklist *Blacklist
 }
 
 type AppList struct {
 	appList         map[int]db.SteamAppModel
 	recommendedList []db.SteamAppModel
 	expiry          time.Time
+}
+
+type Blacklist struct {
+	ids map[int]db.BlacklistModel
 }
 
 func NewSteamAppHandler(server *handler.Server, groupName string, service *service.SteamAppService) *SteamAppHandler {
@@ -31,12 +36,17 @@ func NewSteamAppHandler(server *handler.Server, groupName string, service *servi
 		expiry:          time.Now().AddDate(0, 0, -1),
 	}
 
+	var blacklist = Blacklist{
+		ids: map[int]db.BlacklistModel{},
+	}
+
 	steamAppHandler := &SteamAppHandler{
 		server,
 		groupName,
 		&gin.RouterGroup{},
 		service,
 		&apps,
+		&blacklist,
 	}
 
 	steamAppHandler.router = steamAppHandler.registerGroup()

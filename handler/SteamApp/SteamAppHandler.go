@@ -105,6 +105,21 @@ func (h *SteamAppHandler) ListApps(ctx context.Context) map[int]db.SteamAppModel
 	return h.Apps.appList
 }
 
+func (h *SteamAppHandler) GetBlacklist(ctx context.Context) map[int]db.BlacklistModel {
+	if len(h.Blacklist.ids) == 0 {
+		blacklist, err := h.Service.GetBlacklist(ctx)
+		if err != nil {
+			return nil
+		}
+
+		for _, app := range *blacklist {
+			h.Blacklist.ids[app.ID] = app
+		}
+	}
+
+	return h.Blacklist.ids
+}
+
 func (h *SteamAppHandler) CreateDefaultRecommended(ctx context.Context) {
 	reccIds := [...]int{3527290, 3241660, 1966720, 739630}
 
@@ -151,6 +166,10 @@ func (h *SteamAppHandler) RequestGames(ctx context.Context) error {
 }
 
 func (h *SteamAppHandler) AddGameById(ctx context.Context, id int) {
+	if h.Blacklist.ids[id].ID != 0 {
+		return
+	}
+
 	dResp, err := api.GET(api.GetDetails, fmt.Sprintf("appids=%d", id))
 	if err != nil {
 		log.Printf("error getting details, skipping: %s", err)
@@ -178,4 +197,15 @@ func (h *SteamAppHandler) DeleteGameById(ctx context.Context, id int) {
 	if err != nil {
 		log.Printf("Game of ID %d could not be removed, verify the id is correct.", id)
 	}
+}
+
+func (h *SteamAppHandler) BlacklistGameById(ctx context.Context, id int) {
+	appId := &db.BlacklistModel{ID: id, Name: fmt.Sprint(id)}
+
+	err := h.Service.BlacklistSteamApp(ctx, appId)
+	if err != nil {
+		log.Printf("Game of ID %d could not be blacklisted due to %s", id, err)
+	}
+
+	h.Blacklist.ids[id] = *appId
 }

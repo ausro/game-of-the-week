@@ -53,6 +53,32 @@ func (steamAppServ *SteamAppService) GetAllSteamApps(ctx context.Context) (*[]db
 	return &steamAppList, err
 }
 
+func (steamAppServ *SteamAppService) GetBlacklist(ctx context.Context) (*[]db.BlacklistModel, error) {
+	var blacklist []db.BlacklistModel
+	err := steamAppServ.db.SelectAll(ctx, &blacklist, "blacklist")
+	if err != nil {
+		log.Printf("Failed to select from DB: %s", err)
+		return nil, err
+	}
+
+	if len(blacklist) == 0 {
+		log.Printf("App list is empty.")
+		return nil, errors.New("db_no_rows")
+	}
+
+	return &blacklist, err
+}
+
+func (steamAppServ *SteamAppService) BlacklistSteamApp(ctx context.Context, appId *db.BlacklistModel) error {
+	_, err := steamAppServ.db.Insert(ctx, appId)
+	if err != nil {
+		log.Printf("Failed to Insert: %s", err)
+		return err
+	}
+
+	return nil
+}
+
 func (steamAppServ *SteamAppService) GetPromotedApps(ctx context.Context) (*[]db.SteamAppModel, error) {
 	var promotedList []db.SteamAppModel
 	err := steamAppServ.db.Select(ctx, &promotedList, "promoted", true)

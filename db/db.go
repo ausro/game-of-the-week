@@ -79,6 +79,7 @@ func (d *DB) Migrate() error {
 
 	models := []any{
 		(*SteamAppModel)(nil),
+		(*BlacklistModel)(nil),
 	}
 
 	for _, model := range models {
