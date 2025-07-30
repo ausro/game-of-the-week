@@ -6,6 +6,9 @@ import (
 	"github.com/ausro/game-of-the-week/api"
 )
 
+// Blacklisted genres
+var BLG = map[string]byte{"Puzzle": 1, "City Builder": 1}
+
 // Tag(s) of: Online Co-op (extra credit to action and horror).
 // Price: <$30.
 // Released or early access (not coming soon).
@@ -20,6 +23,12 @@ func ValidateApp(appDetail *api.AppDetails) error {
 
 	if appDetail.ReleaseDate.ComingSoon {
 		return errors.New("game not released")
+	}
+
+	for _, gen := range appDetail.Genres {
+		if BLG[gen.Description] == 1 {
+			return errors.New("contains blacklisted genre")
+		}
 	}
 
 	for _, cat := range appDetail.Categories {
